@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>To-Do App</title>
+<style>
+  * { box-sizing: border-box; font-family: system-ui, sans-serif; }
+  body { margin: 0; background: #0d1117; color: #e6edf3; display: flex; justify-content: center; padding: 24px; }
+  .app { width: 100%; max-width: 420px; }
+  h1 { text-align: center; }
+  .row { display: flex; gap: 8px; }
+  input { flex: 1; padding: 12px; border-radius: 8px; border: 1px solid #30363d; background: #161b22; color: inherit; }
+  button { padding: 12px 16px; border: 0; border-radius: 8px; background: #238636; color: #fff; cursor: pointer; }
+  ul { list-style: none; padding: 0; margin-top: 16px; }
+  li { display: flex; justify-content: space-between; align-items: center; padding: 12px; margin-bottom: 8px; background: #161b22; border-radius: 8px; cursor: pointer; }
+  li.done span { text-decoration: line-through; opacity: .5; }
+  li button { background: #da3633; padding: 6px 10px; }
+</style>
+</head>
+<body>
+<div class="app">
+  <h1>To-Do</h1>
+  <div class="row">
+    <input id="task" placeholder="Add a task..." />
+    <button onclick="addTask()">Add</button>
+  </div>
+  <ul id="list"></ul>
+</div>
+<script>
+  let tasks = JSON.parse(localStorage.getItem("tasks") || "[]");
+  const list = document.getElementById("list");
+  const input = document.getElementById("task");
+
+  function save() { localStorage.setItem("tasks", JSON.stringify(tasks)); render(); }
+
+  function addTask() {
+    const text = input.value.trim();
+    if (!text) return;
+    tasks.push({ text, done: false });
+    input.value = "";
+    save();
+  }
+
+  function toggle(i) { tasks[i].done = !tasks[i].done; save(); }
+  function remove(i, e) { e.stopPropagation(); tasks.splice(i, 1); save(); }
+
+  function render() {
+    list.innerHTML = "";
+    tasks.forEach((t, i) => {
+      const li = document.createElement("li");
+      if (t.done) li.className = "done";
+      li.onclick = () => toggle(i);
+      const span = document.createElement("span");
+      span.textContent = t.text;
+      const del = document.createElement("button");
+      del.textContent = "X";
+      del.onclick = (e) => remove(i, e);
+      li.append(span, del);
+      list.appendChild(li);
+    });
+  }
+
+  input.addEventListener("keydown", e => { if (e.key === "Enter") addTask(); });
+  render();
+</script>
+</body>
+</html>
